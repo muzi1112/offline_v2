@@ -50,12 +50,69 @@ create 'user_behavior:track_log', 'info', {
 SPLITS => ['00000000', '20000000', '40000000', '60000000', '80000000']
 }
 
-
 5.删除表
 若需删除表，需先禁用（disable）再删除（drop）：
 disable 'user_behavior:track_log'  # 禁用表
 drop 'user_behavior:track_log'     # 删除表
 
 
+二.
+2. 查看所有表
+   列出 HBase 中所有已创建的表：
+   list
 
+3. 查看表结构（描述表）
+   查看指定表的详细信息（包括列族、版本数、属性等）：
+   describe '表名'  # 表名需用单引号括起来
+
+
+idea的代码：
+![img_15.png](img_15.png)
+
+![img_13.png](img_13.png)
+三.查看表中数据
+
+（1）扫描整个表（获取所有数据）
+使用 scan 命令扫描表中所有数据:
+scan 'user_behavior:track_log'
+![img_14.png](img_14.png)
+
+（2）限制扫描行数
+扫描表但只返回指定行数（避免大表数据过多）：
+scan '表名', {LIMIT => 行数}  # 例如返回前5行
+示例：
+scan 'student', {LIMIT => 5}
+（3）按列族 / 列筛选数据
+只扫描指定列族或列的数据：
+
+# 只扫描某个列族
+scan '表名', {COLUMNS => '列族名'}
+
+# 只扫描某个列族下的特定列
+scan '表名', {COLUMNS => '列族名:列名'}
+示例（扫描 student 表中 info 列族的 name 列）：
+
+scan 'student', {COLUMNS => 'info:name'}
+（4）按行键范围扫描
+只扫描行键在某个范围内的数据：
+
+scan '表名', {STARTROW => '起始行键', STOPROW => '结束行键'}
+示例（行键从 001 到 010）：
+
+scan 'student', {STARTROW => '001', STOPROW => '010'}
+5. 查看指定行的数据
+   如果知道具体行键，可直接获取该行数据（比 scan 更高效）：
+
+   get '表名', '行键'
+   示例（获取 student 表中行键为 001 的数据）：
+
+   get 'student', '001'
+   也可指定列族 / 列获取特定数据：
+
+   get '表名', '行键', '列族名:列名'
+   示例：
+     get 'student', '001', 'info:age'
+6. 检查表是否存在
+   确认表是否存在（返回 true 或 false）：
+   exists '表名'
 
